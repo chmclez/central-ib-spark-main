@@ -28,8 +28,8 @@ const Index = () => {
 
         {isAdmin && <MotivationalWidget />}
         
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className={isAdmin ? 'grid lg:grid-cols-3 gap-8' : 'flex justify-center'}>
+          <div className={isAdmin ? 'lg:col-span-2 space-y-8' : 'w-full max-w-xl space-y-8'}>
             <Dashboard />
             {isAdmin && <SmartRevisionPlanner />}
             {isAdmin && <ProgressOverview />}
@@ -44,7 +44,7 @@ const Index = () => {
         </div>
         {!isAdmin && (
           <div className="text-center py-20 text-gray-500">
-            Your dashboard is empty. Use the profile menu to add your own content.
+            Your dashboard is empty. Use the button above to add your subjects.
           </div>
         )}
       </main>

@@ -3,12 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useProfileMenu } from '@/hooks/use-profile-menu';
-import { FileText, Calendar, Users, CheckCircle, BookOpen, Plus } from 'lucide-react';
+import { FileText, Calendar, Users, CheckCircle, BookOpen } from 'lucide-react';
+import { AddSubjectDialog } from './AddSubjectDialog';
 
 export const Dashboard = () => {
-  const { setOpen } = useProfileMenu();
   return (
     <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
       <CardHeader>
@@ -25,16 +23,7 @@ export const Dashboard = () => {
           <BookOpen className="w-16 h-16 mx-auto mb-4 opacity-50" />
           <h3 className="text-xl font-semibold mb-2">Welcome to IB Central!</h3>
           <p className="mb-4">Start by adding your subjects so we can track your progress and personalize your dashboard.</p>
-          <div className="text-sm text-gray-400 mb-4">
-            Click the profile icon in the top right to get started
-          </div>
-           <Button
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            onClick={() => setOpen(true)}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Your First Subject
-          </Button>
+          <AddSubjectDialog />
         </div>
       </CardContent>
     </Card>

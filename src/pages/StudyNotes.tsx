@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,21 +7,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { BookOpen, Folder, Plus, Upload, File, ChevronRight } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useSubjects } from '@/context/subjects-context';
 
-const defaultFolders = [
-  { name: 'Computer Science', icon: '💻', files: 0, subfolders: [] },
-  { name: 'Physics', icon: '⚡', files: 0, subfolders: [] },
-  { name: 'Arabic', icon: '📖', files: 0, subfolders: [] },
-  { name: 'Math', icon: '🔢', files: 0, subfolders: [] },
-  { name: 'Chemistry', icon: '🧪', files: 0, subfolders: [] },
-  { name: 'Economics', icon: '📊', files: 0, subfolders: [] },
-  { name: 'English', icon: '📚', files: 0, subfolders: [] },
-];
+const createFolder = (name: string) => ({ name, icon: '📁', files: 0, subfolders: [] });
 
 const StudyNotes = () => {
-  const [folders, setFolders] = useState(defaultFolders);
+  const { subjects } = useSubjects();
+  const [folders, setFolders] = useState(() => subjects.map(createFolder));
   const [selectedFolder, setSelectedFolder] = useState(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setFolders(subjects.map(createFolder));
+  }, [subjects]);
 
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -182,8 +180,10 @@ const StudyNotes = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
+              {folders.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {folders.map((folder, index) => (
+                  
                   <div 
                     key={folder.name}
                     className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-all duration-300 cursor-pointer"
@@ -203,6 +203,11 @@ const StudyNotes = () => {
                   </div>
                 ))}
               </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  Add subjects to create your first folders.
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

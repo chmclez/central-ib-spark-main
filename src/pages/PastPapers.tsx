@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Download, Clock, Star, Filter, Plus, Upload, ArrowUpDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { badgeColorMap } from '@/lib/colorClasses';
+import { useSubjects } from '@/context/subjects-context';
 
-const subjects = [
+const allSubjects = [
   { name: 'Mathematics HL', papers: 15, recent: '2024 Nov', difficulty: 'Hard' },
   { name: 'Physics HL', papers: 12, recent: '2024 Nov', difficulty: 'Medium' },
   { name: 'Chemistry SL', papers: 10, recent: '2024 May', difficulty: 'Medium' },
@@ -28,10 +29,12 @@ const recentPapers = [
 ];
 
 const PastPapers = () => {
+  const { subjects: selectedSubjects } = useSubjects();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Recent');
   const { toast } = useToast();
+  const filteredSubjects = allSubjects.filter(s => selectedSubjects.includes(s.name));
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -194,9 +197,10 @@ const PastPapers = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {filteredSubjects.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-4">
-                  {subjects.map((subject, index) => (
-                    <div 
+                  {filteredSubjects.map((subject, index) => (
+                    <div
                       key={subject.name}
                       className="p-4 rounded-lg border border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:shadow-md transition-all duration-300 cursor-pointer"
                       style={{ animationDelay: `${index * 100}ms` }}
@@ -224,6 +228,11 @@ const PastPapers = () => {
                     </div>
                   ))}
                 </div>
+                  ) : (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    Add subjects to view available past papers.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

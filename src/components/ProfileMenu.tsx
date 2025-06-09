@@ -10,24 +10,25 @@ import { ibSubjects } from '@/data/ibSubjects';
 import { logout, getCurrentUser } from '@/auth';
 import { useNavigate } from 'react-router-dom';
 import { useProfileMenu } from '@/hooks/use-profile-menu';
+import { useSubjects } from '../context/subjects-context';
 
 export const ProfileMenu = () => {
   const { open, setOpen } = useProfileMenu();
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const { subjects, addSubject, removeSubject } = useSubjects();
   const [newSubject, setNewSubject] = useState('');
   const [isEditingSubjects, setIsEditingSubjects] = useState(false);
   const user = getCurrentUser();
   const navigate = useNavigate();
 
-  const addSubject = () => {
+  const addSubjectHandler = () => {
     if (newSubject && !subjects.includes(newSubject)) {
-      setSubjects([...subjects, newSubject]);
+      addSubject(newSubject);
       setNewSubject('');
     }
   };
 
-  const removeSubject = (subjectToRemove: string) => {
-    setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+  const removeSubjectHandler = (subjectToRemove: string) => {
+    removeSubject(subjectToRemove);
   };
 
   return (
@@ -83,9 +84,9 @@ export const ProfileMenu = () => {
                     >
                       {subject}
                       {isEditingSubjects && (
-                        <X 
-                          className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                          onClick={() => removeSubject(subject)}
+                        <X
+                          className="w-3 h-3 cursor-pointer hover:text-red-500"
+                          onClick={() => removeSubjectHandler(subject)}
                         />
                       )}
                     </Badge>
@@ -113,7 +114,7 @@ export const ProfileMenu = () => {
                         ))}
                     </SelectContent>
                   </Select>
-                  <Button size="sm" onClick={addSubject} disabled={!newSubject}>
+                  <Button size="sm" onClick={addSubjectHandler} disabled={!newSubject}>
                     <Plus className="w-3 h-3" />
                   </Button>
                 </div>
