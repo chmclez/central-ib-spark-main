@@ -3,20 +3,30 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'
+import { login } from '@/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy login logic
-    toast({
-      title: 'Logged In',
-      description: `Welcome, ${email}!`,
-    });
+    const user = login(email, password);
+    if (user) {
+      toast({
+        title: 'Logged In',
+        description: `Welcome, ${user.name}!`,
+      });
+      navigate('/');
+    } else {
+      toast({
+        title: 'Login Failed',
+        description: 'Invalid credentials',
+      });
+    }
   };
 
   return (
@@ -53,5 +63,6 @@ const Login = () => {
     </div>
   );
 };
+
 
 export default Login;
