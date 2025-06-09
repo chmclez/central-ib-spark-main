@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Folder, ChevronRight, ChevronLeft, FileText } from 'lucide-react';
+import { Folder, ChevronRight, ChevronLeft, FileText, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { usePastPapers } from '@/context/past-papers-context';
 
@@ -34,14 +34,17 @@ const PastPaperBrowser = () => {
   const { pastPapers } = usePastPapers();
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedSession, setSelectedSession] = useState<{ year: number; session: string } | null>(null);
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
 
-  const papers = selectedSession ? getPapers(subjectName, selectedSession.year) : [];
-  const uploaded = selectedSession
-    ? (pastPapers[subjectName] || []).filter(p => p.year === selectedSession.year && p.session === selectedSession.session)
+  const papers = selectedZone ? getPapers(subjectName, selectedSession!.year) : [];
+  const uploaded = selectedZone
+    ? (pastPapers[subjectName] || []).filter(p => p.year === selectedSession!.year && p.session === selectedSession!.session)
     : [];
 
   const handleBack = () => {
-    if (selectedSession) {
+    if (selectedZone) {
+      setSelectedZone(null);
+    } else if (selectedSession) {
       setSelectedSession(null);
     } else if (selectedYear) {
       setSelectedYear(null);
@@ -65,7 +68,7 @@ const PastPaperBrowser = () => {
             </div>
           </CardHeader>
           <CardContent>
-            {selectedSession ? (
+            {selectedZone ? (
               <div className="space-y-2">
                 <Button variant="outline" size="sm" onClick={handleBack} className="mb-4">
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
@@ -78,10 +81,36 @@ const PastPaperBrowser = () => {
                         <FileText className="w-4 h-4" />
                         {p}
                       </span>
+                      <a
+                        href="#"
+                        download
+                        className="text-blue-600 text-sm flex items-center gap-1"
+                      >
+                        <Download className="w-4 h-4" /> Download
+                      </a>
                       {exists && <Badge variant="secondary">Uploaded</Badge>}
                     </div>
                   );
                 })}
+              </div>
+              ) : selectedSession ? (
+              <div className="space-y-2">
+                <Button variant="outline" size="sm" onClick={handleBack} className="mb-4">
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                </Button>
+                {['TZ1', 'TZ2'].map(zone => (
+                  <div
+                    key={zone}
+                    onClick={() => setSelectedZone(zone)}
+                    className="p-4 border rounded cursor-pointer flex items-center justify-between hover:bg-gray-50"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Folder className="w-4 h-4" />
+                      {zone}
+                    </span>
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                ))}
               </div>
             ) : selectedYear ? (
               <div className="space-y-2">

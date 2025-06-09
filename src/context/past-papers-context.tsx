@@ -48,7 +48,7 @@ export const PastPapersProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     </PastPapersContext.Provider>
   );
 };
-
+// eslint-disable-next-line react-refresh/only-export-components
 export const usePastPapers = (): PastPapersContextProps => {
   const ctx = useContext(PastPapersContext);
   if (!ctx) throw new Error('usePastPapers must be used within a PastPapersProvider');

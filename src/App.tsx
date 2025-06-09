@@ -13,6 +13,8 @@ import Collaborate from "@/pages/Collaborate";
 import NotFound from "@/pages/NotFound";
 import Login from "./pages/Login";
 import { getCurrentUser } from "@/auth";
+import { Chatbot } from "@/components/Chatbot";
+
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        <Chatbot />
       </TooltipProvider>
     </ProfileMenuProvider>
   </QueryClientProvider>

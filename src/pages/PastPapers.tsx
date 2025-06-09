@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -104,12 +103,10 @@ const PastPapers = () => {
 
 
 
-  const years = Array.from({ length: 2025 - 1999 + 1 }, (_, i) => 2025 - i);
-
   const PastPaperBrowserDialog = ({ subject }: { subject: string }) => (
     <Dialog>
       <DialogTrigger asChild>
-        <Link to={`/past-papers/${encodeURIComponent(subject.name)}`} className="w-full">
+        <Link to={`/past-papers/${encodeURIComponent(subject)}`} className="w-full">
           <Button size="sm" className="w-full">Browse Papers</Button>
             </Link>
       </DialogTrigger>
@@ -296,7 +293,7 @@ const PastPapers = () => {
                         </Badge>
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-4">
                         <div className="flex justify-between text-xs text-gray-600">
                           <span>{subject.papers} papers available</span>
                           <span>Latest: {subject.recent}</span>
