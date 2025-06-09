@@ -22,7 +22,7 @@ export const AddSubjectDialog = () => {
       <DialogTrigger asChild>
         <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
           <Plus className="w-4 h-4 mr-2" />
-          Add Your First Subject
+          Add Subjects
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProfileMenuProvider } from "@/context/profile-menu-provider";
 import Index from "@/pages/Index";
 import PastPapers from "@/pages/PastPapers";
+import PastPaperBrowser from "@/pages/PastPaperBrowser";
 import StudyNotes from "@/pages/StudyNotes";
 import Calendar from "@/pages/Calendar";
 import Collaborate from "@/pages/Collaborate";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/past-papers" element={<PastPapers />} />
+            <Route path="/past-papers/:subject" element={<PastPaperBrowser />} />
             <Route path="/study-notes" element={<StudyNotes />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/collaborate" element={<Collaborate />} />

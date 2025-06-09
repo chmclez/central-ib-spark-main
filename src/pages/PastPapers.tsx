@@ -7,34 +7,67 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Download, Clock, Star, Filter, Plus, Upload, ArrowUpDown } from 'lucide-react';
+import { Search, Download, Clock, Star, Filter, Plus, Upload, ArrowUpDown, BookOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { badgeColorMap } from '@/lib/colorClasses';
 import { useSubjects } from '@/context/subjects-context';
+import { getCurrentUser } from '@/auth';
+import { usePastPapers, UploadedPaper } from '@/context/past-papers-context';
 
-const allSubjects = [
-  { name: 'Mathematics HL', papers: 15, recent: '2024 Nov', difficulty: 'Hard' },
-  { name: 'Physics HL', papers: 12, recent: '2024 Nov', difficulty: 'Medium' },
-  { name: 'Chemistry SL', papers: 10, recent: '2024 May', difficulty: 'Medium' },
-  { name: 'English A SL', papers: 8, recent: '2024 Nov', difficulty: 'Easy' },
-  { name: 'Spanish B SL', papers: 6, recent: '2024 May', difficulty: 'Easy' },
-  { name: 'History SL', papers: 9, recent: '2024 Nov', difficulty: 'Hard' },
+const baseSubjects = [
+  { name: 'Physics HL', difficulty: 'Hard' },
+  { name: 'Physics SL', difficulty: 'Medium' },
+  { name: 'Geography HL', difficulty: 'Medium' },
+  { name: 'English Language and Literature SL', difficulty: 'Easy' },
+  { name: 'Chemistry HL', difficulty: 'Hard' },
+  { name: 'Economics HL', difficulty: 'Medium' },
+  { name: 'Computer Science HL', difficulty: 'Hard' },
+  { name: 'Mathematics Analysis and Approaches SL', difficulty: 'Hard' },
+  { name: 'Mathematics Analysis and Approaches HL', difficulty: 'Hard' },
+  { name: 'Arabic Language and Literature SL', difficulty: 'Easy' },
 ];
+interface RecentPaper {
+  subject: string;
+  paper: string;
+  year: string;
+  downloaded: boolean;
+}
 
-const recentPapers = [
-  { subject: 'Mathematics HL', paper: 'Paper 2', year: '2024 Nov', downloaded: true },
-  { subject: 'Physics HL', paper: 'Paper 1', year: '2024 Nov', downloaded: false },
-  { subject: 'Chemistry SL', paper: 'Paper 2', year: '2024 May', downloaded: true },
-  { subject: 'English A SL', paper: 'Paper 1', year: '2024 Nov', downloaded: false },
-];
+const recentPapers: RecentPaper[] = [];
+
+const getLatestInfo = (papers: UploadedPaper[]): string => {
+  if (!papers.length) return 'N/A';
+  let latest = papers[0];
+  for (const p of papers) {
+    if (p.year > latest.year) latest = p;
+    else if (p.year === latest.year && p.session === 'November' && latest.session === 'May') latest = p;
+  }
+  return `${latest.year} ${latest.session}`;
+};
 
 const PastPapers = () => {
   const { subjects: selectedSubjects } = useSubjects();
+  const { pastPapers, addPastPaper } = usePastPapers();
+  const user = getCurrentUser();
+  const isAdmin = user?.role === 'admin';
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [sortBy, setSortBy] = useState('Recent');
   const { toast } = useToast();
-  const filteredSubjects = allSubjects.filter(s => selectedSubjects.includes(s.name));
+  const years = Array.from({ length: 2025 - 1999 + 1 }, (_, i) => 2025 - i);
+
+  const [uSubject, setUSubject] = useState('');
+  const [uPaper, setUPaper] = useState('');
+  const [uYear, setUYear] = useState('');
+  const [uSession, setUSession] = useState('');
+
+  const allSubjects = baseSubjects.map(s => {
+    const papers = pastPapers[s.name] || [];
+    return { ...s, papers: papers.length, recent: getLatestInfo(papers) };
+  });
+
+  const filteredSubjects = isAdmin ? allSubjects : allSubjects.filter(s => selectedSubjects.includes(s.name));
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -61,12 +94,46 @@ const PastPapers = () => {
     });
   };
 
-  const handleUploadPaper = (subject: string, paperType: string, year: string) => {
+  const handleUploadPaper = (paper: UploadedPaper) => {
+    addPastPaper(paper);
     toast({
-      title: "Past Paper Uploaded",
-      description: `${subject} ${paperType} (${year}) has been uploaded successfully.`,
+      title: 'Past Paper Uploaded',
+      description: `${paper.subject} ${paper.paper} (${paper.year} ${paper.session}) has been uploaded successfully.`,
     });
   };
+
+
+
+  const years = Array.from({ length: 2025 - 1999 + 1 }, (_, i) => 2025 - i);
+
+  const PastPaperBrowserDialog = ({ subject }: { subject: string }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Link to={`/past-papers/${encodeURIComponent(subject.name)}`} className="w-full">
+          <Button size="sm" className="w-full">Browse Papers</Button>
+            </Link>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <BookOpen className="w-5 h-5" />
+            {subject} Past Papers
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-2">
+          {years.map(year => (
+            <div key={year} className="border rounded p-2">
+              <p className="font-medium mb-1">{year}</p>
+              <div className="ml-4 flex gap-2">
+                <Badge variant="secondary">May</Badge>
+                <Badge variant="secondary">November</Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   const UploadPaperDialog = () => (
     <Dialog>
@@ -84,39 +151,53 @@ const PastPapers = () => {
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <Select>
+              <Select value={uSubject} onValueChange={setUSubject}>
             <SelectTrigger>
               <SelectValue placeholder="Select subject..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="math-hl">Mathematics HL</SelectItem>
-              <SelectItem value="physics-hl">Physics HL</SelectItem>
-              <SelectItem value="chemistry-sl">Chemistry SL</SelectItem>
-              <SelectItem value="english-sl">English A SL</SelectItem>
+              {baseSubjects.map(s => (
+                <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Select>
+                   <Select value={uPaper} onValueChange={setUPaper}>
             <SelectTrigger>
               <SelectValue placeholder="Paper type..." />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="paper-1">Paper 1</SelectItem>
-              <SelectItem value="paper-2">Paper 2</SelectItem>
-              <SelectItem value="paper-3">Paper 3</SelectItem>
+               <SelectItem value="Paper 1">Paper 1</SelectItem>
+              <SelectItem value="Paper 2">Paper 2</SelectItem>
+              <SelectItem value="Paper 3">Paper 3</SelectItem>
             </SelectContent>
           </Select>
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Year and session..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2024-nov">2024 November</SelectItem>
-              <SelectItem value="2024-may">2024 May</SelectItem>
-              <SelectItem value="2023-nov">2023 November</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={uYear} onValueChange={setUYear}>
+              <SelectTrigger className="w-24">
+                <SelectValue placeholder="Year" />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map(y => (
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={uSession} onValueChange={setUSession}>
+              <SelectTrigger className="w-28">
+                <SelectValue placeholder="Session" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="May">May</SelectItem>
+                <SelectItem value="November">November</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Input type="file" accept=".pdf" />
-          <Button onClick={() => handleUploadPaper("Mathematics HL", "Paper 1", "2024 Nov")} className="w-full">
+          <Button
+            disabled={!uSubject || !uPaper || !uYear || !uSession}
+            onClick={() => handleUploadPaper({ subject: uSubject, paper: uPaper, year: parseInt(uYear), session: uSession as 'May' | 'November' })}
+            className="w-full"
+          >
             Upload Paper
           </Button>
         </div>
@@ -138,7 +219,7 @@ const PastPapers = () => {
               Access and download past papers for all your IB subjects. Practice makes perfect!
             </p>
           </div>
-          <UploadPaperDialog />
+          {isAdmin && <UploadPaperDialog />}
         </div>
 
         {/* Search and Filter */}
@@ -221,9 +302,7 @@ const PastPapers = () => {
                           <span>Latest: {subject.recent}</span>
                         </div>
                         
-                        <Button size="sm" className="w-full">
-                          Browse Papers
-                        </Button>
+                        <PastPaperBrowserDialog subject={subject.name} />
                       </div>
                     </div>
                   ))}
