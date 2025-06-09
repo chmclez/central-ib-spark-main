@@ -10,7 +10,7 @@ import StudyNotes from "@/pages/StudyNotes";
 import Calendar from "@/pages/Calendar";
 import Collaborate from "@/pages/Collaborate";
 import NotFound from "@/pages/NotFound";
-import Login from "@/pages/Login";
+import Login from "./pages/Login";
 import { getCurrentUser } from "@/auth";
 
 const queryClient = new QueryClient();
