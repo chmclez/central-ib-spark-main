@@ -5,6 +5,7 @@ export interface UploadedPaper {
   year: number;
   session: 'May' | 'November';
   paper: string;
+  dataUrl?: string;
 }
 
 interface PastPapersContextProps {

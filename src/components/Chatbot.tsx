@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -9,9 +9,12 @@ interface ChatMessage {
 }
 
 const BOT_NAME = 'SparkBot';
-// Add your OpenAI API key below
 const API_KEY = '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';
-
+const suggestedPrompts = [
+  'Explain this topic simply',
+  'What are the key facts I need to know?',
+  'Give me practice questions',
+];
 const loadMessages = (): ChatMessage[] => {
   try {
     const data = localStorage.getItem('chat_messages');
@@ -35,6 +38,7 @@ export const Chatbot = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(loadMessages);
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     saveMessages(messages);
@@ -81,39 +85,57 @@ export const Chatbot = () => {
           <MessageCircle className="w-6 h-6" />
         </button>
       )}
-      {open && (
-        <div className="fixed bottom-4 right-4 w-80 bg-white border rounded shadow-lg flex flex-col">
-          <div className="flex items-center justify-between p-2 border-b">
-            <span className="font-medium">{BOT_NAME}</span>
+       <div className={`fixed bottom-4 right-4 w-80 bg-white border rounded shadow-lg flex flex-col transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex items-center justify-between p-2 border-b">
+            <div className="flex items-center gap-2">
+              <Bot className="w-4 h-4 text-blue-600" />
+              <span className="font-medium">{BOT_NAME}</span>
+            </div>
             <button onClick={() => setOpen(false)} aria-label="Close chat">
               <X className="w-4 h-4" />
             </button>
           </div>
+          <p className="text-xs text-gray-500 px-2">Hi! I'm {BOT_NAME} — your study buddy for the IB.</p>
           <div className="p-2 space-y-2 overflow-y-auto flex-1" style={{ maxHeight: '300px' }}>
             {messages.length === 0 && (
-              <p className="text-sm text-gray-500">Hey there! I'm {BOT_NAME}. Ask me anything about IB, and I'll do my best to help.</p>
+              <>
+                <p className="text-sm text-gray-500">Hey there! I'm {BOT_NAME}. Ask me anything about IB, and I'll do my best to help.</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {suggestedPrompts.map(p => (
+                    <button key={p} onClick={() => { setInput(p); textareaRef.current?.focus(); }} className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
             {messages.map((m, idx) => (
               <div key={idx} className={m.role === 'user' ? 'text-right' : 'text-left'}>
                 <div className={`inline-block px-2 py-1 rounded text-sm ${m.role === 'user' ? 'bg-blue-100' : 'bg-gray-100'}`}>{m.content}</div>
               </div>
             ))}
-            {loading && <p className="text-sm text-gray-500">{BOT_NAME} is typing...</p>}
+            {loading && <p className="text-sm text-gray-500">{BOT_NAME} is typing<span className="animate-pulse">...</span></p>}
             <div ref={endRef} />
           </div>
           <div className="p-2 border-t space-y-2">
             <Textarea
+              ref={textareaRef}
               value={input}
               onChange={e => setInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               placeholder="Ask a question..."
               className="h-16"
             />
             <Button onClick={sendMessage} disabled={loading} className="w-full">Send</Button>
           </div>
         </div>
-      )}
-    </div>
-  );
-};
+      )</div>
+    );
+  };
 
 export default Chatbot;

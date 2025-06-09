@@ -81,13 +81,19 @@ const PastPaperBrowser = () => {
                         <FileText className="w-4 h-4" />
                         {p}
                       </span>
-                      <a
-                        href="#"
-                        download
-                        className="text-blue-600 text-sm flex items-center gap-1"
-                      >
-                        <Download className="w-4 h-4" /> Download
-                      </a>
+                       {exists ? (
+                        <a
+                          href={uploaded.find(u => u.paper === p)?.dataUrl}
+                          download
+                          className="text-blue-600 text-sm flex items-center gap-1"
+                        >
+                          <Download className="w-4 h-4" /> Download
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 text-sm flex items-center gap-1 cursor-not-allowed">
+                          <Download className="w-4 h-4" /> Not uploaded
+                        </span>
+                      )}
                       {exists && <Badge variant="secondary">Uploaded</Badge>}
                     </div>
                   );

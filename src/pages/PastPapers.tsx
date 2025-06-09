@@ -60,6 +60,7 @@ const PastPapers = () => {
   const [uPaper, setUPaper] = useState('');
   const [uYear, setUYear] = useState('');
   const [uSession, setUSession] = useState('');
+  const [uFile, setUFile] = useState<File | null>(null);
 
   const allSubjects = baseSubjects.map(s => {
     const papers = pastPapers[s.name] || [];
@@ -93,13 +94,22 @@ const PastPapers = () => {
     });
   };
 
-  const handleUploadPaper = (paper: UploadedPaper) => {
-    addPastPaper(paper);
-    toast({
-      title: 'Past Paper Uploaded',
-      description: `${paper.subject} ${paper.paper} (${paper.year} ${paper.session}) has been uploaded successfully.`,
-    });
-  };
+  const handleUploadPaper = (paper: UploadedPaper, file: File | null) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      addPastPaper({ ...paper, dataUrl: reader.result as string });
+      toast({
+        title: 'Past Paper Uploaded',
+        description: `${paper.subject} ${paper.paper} (${paper.year} ${paper.session}) has been uploaded successfully.`,
+      });
+      setUSubject('');
+      setUPaper('');
+      setUYear('');
+      setUSession('');
+      setUFile(null);
+    };
+    reader.readAsDataURL(file);
 
 
 
@@ -189,10 +199,10 @@ const PastPapers = () => {
               </SelectContent>
             </Select>
           </div>
-          <Input type="file" accept=".pdf" />
+          <Input type="file" accept=".pdf" onChange={e => setUFile(e.target.files?.[0] || null)} />
           <Button
-            disabled={!uSubject || !uPaper || !uYear || !uSession}
-            onClick={() => handleUploadPaper({ subject: uSubject, paper: uPaper, year: parseInt(uYear), session: uSession as 'May' | 'November' })}
+            disabled={!uSubject || !uPaper || !uYear || !uSession || !uFile}
+            onClick={() => handleUploadPaper({ subject: uSubject, paper: uPaper, year: parseInt(uYear), session: uSession as 'May' | 'November' }, uFile)}
             className="w-full"
           >
             Upload Paper
